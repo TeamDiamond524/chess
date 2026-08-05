@@ -6,6 +6,8 @@ from engine.board import Board
 
 # Constants:
 SQUARE_SIZE = BOARD_WIDTH // BOARD_SIZE
+BOARD_REFERENCE_POINT_X = (SCREEN_WIDTH - BOARD_WIDTH) // 2
+BOARD_REFERENCE_POINT_Y = (SCREEN_HEIGHT - BOARD_WIDTH) // 2
 
 texture_cache = {}
 
@@ -20,16 +22,14 @@ def game_init() -> tuple[pygame.Surface, pygame.time.Clock]:
     return (screen, clock)
 
 def draw_board(screen: pygame.Surface, board: Board):
-    reference_point_x = (SCREEN_WIDTH - BOARD_WIDTH) // 2
-    reference_point_y = (SCREEN_HEIGHT - BOARD_WIDTH) // 2
     for col in range(BOARD_SIZE):
         for row in range(BOARD_SIZE):
             color = BOARD_WHITE if (row + col) % 2 == 0 else BOARD_BLACK
 
-            rect = (reference_point_x + row * SQUARE_SIZE, reference_point_y + col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+            rect = (BOARD_REFERENCE_POINT_X + col * SQUARE_SIZE, BOARD_REFERENCE_POINT_Y + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
             pygame.draw.rect(screen, color, rect)
 
-            piece = board[col][row]
+            piece = board[row][col]
 
             if piece is not None:
                 piece_hash = f"{piece.color}{piece.kind}"
@@ -39,3 +39,34 @@ def draw_board(screen: pygame.Surface, board: Board):
                     texture_cache[piece_hash] = texture
 
                 screen.blit(texture_cache[piece_hash], (rect[0], rect[1]))
+
+def event_handler() -> bool:
+    for event in pygame.event.get():
+        match event.type:
+            case pygame.QUIT:
+                return False
+            case pygame.MOUSEBUTTONDOWN:
+                # Test to get col and row of a board
+                row, col = select_square(event)
+    return True
+
+def check_if_mouse_on_board(position) -> bool:
+    board_dimentions = (BOARD_REFERENCE_POINT_X, BOARD_REFERENCE_POINT_Y, BOARD_REFERENCE_POINT_X + SQUARE_SIZE * BOARD_SIZE, BOARD_REFERENCE_POINT_Y + SQUARE_SIZE * BOARD_SIZE)
+
+    #          |---------------------------Check x coordinate---------------------------|    |---------------------------Check y coordinate---------------------------|
+    return not ((position[0] < board_dimentions[0] or position[0] > board_dimentions[2] ) or ( position[1] < board_dimentions[1] or position[1] > board_dimentions[3]))
+
+def select_square(event) -> tuple[int, int]:
+    print(check_if_mouse_on_board(event.pos))
+    if check_if_mouse_on_board(event.pos):
+        x, y = event.pos
+
+        col = (x - BOARD_REFERENCE_POINT_X) // SQUARE_SIZE
+        row = (y - BOARD_REFERENCE_POINT_Y) // SQUARE_SIZE
+
+        print(f"Board square [{row}][{col}]")
+        print(x, y)
+
+        return row, col
+    return -1, -1
+

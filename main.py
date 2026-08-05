@@ -1,6 +1,6 @@
 import pygame
 
-from gui import game_init, draw_board
+from gui import game_init, draw_board, event_handler
 from engine.board import Board
 
 def main():
@@ -14,9 +14,7 @@ def main():
     board.set_up()
 
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        running = event_handler()
 
         screen.fill("blue")
 
