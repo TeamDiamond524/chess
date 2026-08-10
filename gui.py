@@ -11,7 +11,6 @@ BOARD_REFERENCE_POINT_Y = (SCREEN_HEIGHT - BOARD_WIDTH) // 2
 
 texture_cache = {}
 
-
 def game_init() -> tuple[pygame.Surface, pygame.time.Clock]:
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -40,15 +39,6 @@ def draw_board(screen: pygame.Surface, board: Board):
 
                 screen.blit(texture_cache[piece_hash], (rect[0], rect[1]))
 
-def event_handler() -> bool:
-    for event in pygame.event.get():
-        match event.type:
-            case pygame.QUIT:
-                return False
-            case pygame.MOUSEBUTTONDOWN:
-                # Test to get col and row of a board
-                row, col = select_square(event)
-    return True
 
 def check_if_mouse_on_board(position) -> bool:
     board_dimentions = (BOARD_REFERENCE_POINT_X, BOARD_REFERENCE_POINT_Y, BOARD_REFERENCE_POINT_X + SQUARE_SIZE * BOARD_SIZE, BOARD_REFERENCE_POINT_Y + SQUARE_SIZE * BOARD_SIZE)
@@ -56,10 +46,10 @@ def check_if_mouse_on_board(position) -> bool:
     #          |---------------------------Check x coordinate---------------------------|    |---------------------------Check y coordinate---------------------------|
     return not ((position[0] < board_dimentions[0] or position[0] > board_dimentions[2] ) or ( position[1] < board_dimentions[1] or position[1] > board_dimentions[3]))
 
-def select_square(event) -> tuple[int, int]:
-    print(check_if_mouse_on_board(event.pos))
-    if check_if_mouse_on_board(event.pos):
-        x, y = event.pos
+def select_square(mouse_position) -> tuple[int, int] | None:
+    print(check_if_mouse_on_board(mouse_position))
+    if check_if_mouse_on_board(mouse_position):
+        x, y = mouse_position
 
         col = (x - BOARD_REFERENCE_POINT_X) // SQUARE_SIZE
         row = (y - BOARD_REFERENCE_POINT_Y) // SQUARE_SIZE
@@ -68,5 +58,18 @@ def select_square(event) -> tuple[int, int]:
         print(x, y)
 
         return row, col
-    return -1, -1
+    return None
 
+def draw_legal_moves(screen: pygame.Surface, legal_moves: list[tuple[int, int]]):
+    radius = 15
+    if not legal_moves:
+        return
+    for row, col in legal_moves:
+        overlay = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE), pygame.SRCALPHA)
+        square_coordinates = (BOARD_REFERENCE_POINT_X + col * SQUARE_SIZE, BOARD_REFERENCE_POINT_Y + row * SQUARE_SIZE)
+        circle_center = (SQUARE_SIZE // 2, SQUARE_SIZE // 2)
+        color = (154, 219, 218, 128)
+
+        pygame.draw.circle(overlay, color, circle_center, radius)
+
+        screen.blit(overlay, square_coordinates)

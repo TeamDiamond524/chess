@@ -33,6 +33,9 @@ class Board:
     def __getitem__(self, index: int):
         return self.squares[index]
 
+    def get_square(self, index: tuple[int, int]):
+        return self[index[0]][index[1]]
+
 @dataclass
 class Piece:
     color: "Color"
