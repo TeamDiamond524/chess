@@ -39,16 +39,21 @@ def draw_board(screen: pygame.Surface, board: Board):
 
                 screen.blit(texture_cache[piece_hash], (rect[0], rect[1]))
 
+def draw_box(screen: pygame.Surface, box):
+    color = (31, 153, 219)
+    rect = box
 
-def check_if_mouse_on_board(position) -> bool:
-    board_dimentions = (BOARD_REFERENCE_POINT_X, BOARD_REFERENCE_POINT_Y, BOARD_REFERENCE_POINT_X + SQUARE_SIZE * BOARD_SIZE, BOARD_REFERENCE_POINT_Y + SQUARE_SIZE * BOARD_SIZE)
+    pygame.draw.rect(screen, color, rect)
 
-    #          |---------------------------Check x coordinate---------------------------|    |---------------------------Check y coordinate---------------------------|
-    return not ((position[0] < board_dimentions[0] or position[0] > board_dimentions[2] ) or ( position[1] < board_dimentions[1] or position[1] > board_dimentions[3]))
+
+def check_mouse_in_box(position, box) -> bool:
+    #          |--------------Check x coordinate--------------|    |--------------Check y coordinate--------------|
+    return not ((position[0] < box[0] or position[0] > box[2] ) or ( position[1] < box[1] or position[1] > box[3]))
 
 def select_square(mouse_position) -> tuple[int, int] | None:
-    print(check_if_mouse_on_board(mouse_position))
-    if check_if_mouse_on_board(mouse_position):
+    board_dimentions = (BOARD_REFERENCE_POINT_X, BOARD_REFERENCE_POINT_Y, BOARD_REFERENCE_POINT_X + SQUARE_SIZE * BOARD_SIZE, BOARD_REFERENCE_POINT_Y + SQUARE_SIZE * BOARD_SIZE)
+    print(check_mouse_in_box(mouse_position, board_dimentions))
+    if check_mouse_in_box(mouse_position, board_dimentions):
         x, y = mouse_position
 
         col = (x - BOARD_REFERENCE_POINT_X) // SQUARE_SIZE
@@ -60,7 +65,14 @@ def select_square(mouse_position) -> tuple[int, int] | None:
         return row, col
     return None
 
-def draw_legal_moves(screen: pygame.Surface, legal_moves: list[tuple[int, int]]):
+def select_promotion(mouse_position):
+    box_width = 100
+    box_height = 50
+    box = (BOARD_REFERENCE_POINT_X, BOARD_REFERENCE_POINT_Y * 2, BOARD_REFERENCE_POINT_X + box_width, BOARD_REFERENCE_POINT_Y * 2 + box_height)
+    if check_mouse_in_box(mouse_position, box):
+        pass
+
+def draw_legal_moves(screen: pygame.Surface, legal_moves: list[tuple[int, int]], board: Board):
     radius = 15
     if not legal_moves:
         return
@@ -69,6 +81,9 @@ def draw_legal_moves(screen: pygame.Surface, legal_moves: list[tuple[int, int]])
         square_coordinates = (BOARD_REFERENCE_POINT_X + col * SQUARE_SIZE, BOARD_REFERENCE_POINT_Y + row * SQUARE_SIZE)
         circle_center = (SQUARE_SIZE // 2, SQUARE_SIZE // 2)
         color = (154, 219, 218, 128)
+
+        if board[row][col] is not None:
+            color = (184, 35, 50, 128)
 
         pygame.draw.circle(overlay, color, circle_center, radius)
 
