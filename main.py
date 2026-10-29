@@ -50,6 +50,8 @@ def event_handler(screen) -> bool:
             case pygame.QUIT:
                 return False
             case pygame.MOUSEBUTTONDOWN:
+                if pygame.mouse.get_pressed()[0] is not True:
+                    break
                 # Test to get col and row of a board
                 print("Selected_square = ", SELECTED_SQUARE)
                 if SELECTED_SQUARE is None:

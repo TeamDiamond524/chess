@@ -34,8 +34,11 @@ class Board:
         return self.squares[index]
 
     def get_square(self, index: tuple[int, int]):
-        if index is not None:
+        if index is None:
+            return
+        if 0 <= index[0] < BOARD_SIZE and 0 <= index[1] < BOARD_SIZE:
             return self[index[0]][index[1]]
+        return
 
 @dataclass
 class Piece:
